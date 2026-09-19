@@ -1,22 +1,52 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
+	tea "github.com/charmbracelet/bubbletea"
 	ssh "github.com/charmbracelet/ssh"
 	"github.com/charmbracelet/wish"
+	wishbubbletea "github.com/charmbracelet/wish/bubbletea"
 )
+
+type model struct{}
+
+func (m model) Init() tea.Cmd {
+	return nil
+}
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "q", "ctrl+c":
+			return m, tea.Quit
+		}
+	}
+
+	return m, nil
+}
+
+func (m model) View() string {
+	return `
+    Welcome to my SSH portfolio
+
+    Press q to quit.
+  `
+}
+
+func teaHandler(session ssh.Session) (tea.Model, []tea.ProgramOption) {
+	return model{}, []tea.ProgramOption{
+		tea.WithAltScreen(),
+	}
+}
 
 func main() {
 	server, err := wish.NewServer(
 		wish.WithAddress(":2222"),
+		wish.WithHostKeyPath(".ssh-portfolio-host-key"),
 		wish.WithMiddleware(
-			func(next ssh.Handler) ssh.Handler {
-				return func(session ssh.Session) {
-					fmt.Fprintln(session, "Welcome to my SSH portfolio!")
-				}
-			},
+			wishbubbletea.Middleware(teaHandler),
 		),
 	)
 	if err != nil {
