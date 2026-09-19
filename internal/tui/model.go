@@ -17,7 +17,6 @@ type (
 	introCompleteMsg struct{}
 )
 
-// Model is the Bubble Tea model for the portfolio.
 type Model struct {
 	frame         int
 	showPortfolio bool
@@ -25,17 +24,14 @@ type Model struct {
 	height        int
 }
 
-// New returns a new portfolio model.
 func New() Model {
 	return Model{}
 }
 
-// Init begins the startup animation.
 func (m Model) Init() tea.Cmd {
 	return nextIntroFrame()
 }
 
-// Update handles terminal events and animation ticks.
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:

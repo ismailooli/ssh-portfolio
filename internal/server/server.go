@@ -17,14 +17,11 @@ const (
 	defaultHostKeyPath = ".ssh-portfolio-host-key"
 )
 
-// Config contains the network and host-key settings for the SSH server.
-// Empty fields use the project's local-development defaults.
 type Config struct {
 	Address     string
 	HostKeyPath string
 }
 
-// Run starts the SSH server and blocks until it stops.
 func Run(config Config) error {
 	address := config.Address
 	if address == "" {

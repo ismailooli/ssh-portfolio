@@ -10,7 +10,6 @@ var logoRaw string
 
 var logo = strings.Split(strings.TrimRight(logoRaw, "\n"), "\n")
 
-// revealLogo exposes a little more of the text art for every animation frame.
 func revealLogo(frame int) string {
 	var total int
 	for _, line := range logo {
