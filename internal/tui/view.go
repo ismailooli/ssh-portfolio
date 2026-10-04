@@ -66,10 +66,8 @@ func (m Model) menuView() string {
 	case 0:
 		content = `about me
 
-		I’m Ismail—a developer and filmmaker.
-
-		This SSH portfolio is a small terminal
-		interface built with Go and Bubble Tea.`
+		Hi, my name is ismail -- i'm currently working as a swe at Relativity working on our FOIA platform but 
+		in my free time, I like to mess around with terminal tools and watch crappy movies`
 
 	case 1:
 		content = `projects
@@ -80,8 +78,8 @@ func (m Model) menuView() string {
 
 	const (
 		menuWidth    = 22
-		contentWidth = 100
-		panelHeight  = 25
+		contentWidth = 80
+		panelHeight  = 24
 	)
 
 	borderColor := lipgloss.Color("#5A6A73")
@@ -122,8 +120,15 @@ func (m Model) menuView() string {
 		BorderForeground(borderColor).
 		Foreground(lipgloss.Color("#5A6A73"))
 
+	left := "ismail mohammad"
+	right := m.currentTime.Local().Format("15:04:05")
+
 	header := headerStyle.Render(
-		"ismail mohammad                              [portfolio]",
+		left + lipgloss.PlaceHorizontal(
+			max(0, lipgloss.Width(body)-lipgloss.Width(left)),
+			lipgloss.Right,
+			right,
+		),
 	)
 
 	footer := footerStyle.Render(
