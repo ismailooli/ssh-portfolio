@@ -11,7 +11,7 @@ var (
 	dimStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("#5A6A73"))
 )
 
-// View renders either the connection animation or the portfolio menu.
+// View renders the boot and logo animations, then a blank portfolio canvas.
 func (m Model) View() string {
 	switch m.screen {
 	case bootScreen:
@@ -21,15 +21,7 @@ func (m Model) View() string {
 		return m.place(m.introView())
 
 	case portfolioScreen:
-		return m.place(`
-    Welcome to my SSH portfolio
-
-    [1] About me
-    [2] Projects
-    [3] Contact
-
-    Press q to quit.
-  `)
+		return ""
 	}
 
 	return ""
