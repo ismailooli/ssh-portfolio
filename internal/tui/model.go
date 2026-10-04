@@ -28,11 +28,12 @@ const (
 )
 
 type Model struct {
-	screen  screen
-	logLine int
-	frame   int
-	width   int
-	height  int
+	screen   screen
+	logLine  int
+	frame    int
+	width    int
+	height   int
+	selected int
 }
 
 var bootLines = []string{
@@ -93,6 +94,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter", " ":
 			m.screen = portfolioScreen
 			return m, nil
+		case "down", "j":
+			if m.screen == portfolioScreen && m.selected < 1 {
+				m.selected++
+			}
+		case "up", "k":
+			if m.screen == portfolioScreen && m.selected > 0 {
+				m.selected--
+			}
 		}
 	}
 
