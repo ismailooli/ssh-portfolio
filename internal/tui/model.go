@@ -16,6 +16,7 @@ const (
 type (
 	bootTickMsg      time.Time
 	introTickMsg     time.Time
+	clockTickMsg     time.Time
 	introCompleteMsg struct{}
 )
 
@@ -28,12 +29,13 @@ const (
 )
 
 type Model struct {
-	screen   screen
-	logLine  int
-	frame    int
-	width    int
-	height   int
-	selected int
+	screen      screen
+	logLine     int
+	frame       int
+	width       int
+	height      int
+	selected    int
+	currentTime time.Time
 }
 
 var bootLines = []string{
@@ -51,11 +53,11 @@ var bootLines = []string{
 }
 
 func New() Model {
-	return Model{}
+	return Model{currentTime: time.Now()}
 }
 
 func (m Model) Init() tea.Cmd {
-	return nextBootLine()
+	return tea.Batch(nextBootLine(), nextClockTick())
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -82,6 +84,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Tick(900*time.Millisecond, func(time.Time) tea.Msg {
 			return introCompleteMsg{}
 		})
+
+	case clockTickMsg:
+		m.currentTime = time.Time(msg)
+		return m, nextClockTick()
 
 	case introCompleteMsg:
 		m.screen = portfolioScreen
@@ -117,5 +123,11 @@ func nextIntroFrame() tea.Cmd {
 func nextBootLine() tea.Cmd {
 	return tea.Tick(bootDelay, func(t time.Time) tea.Msg {
 		return bootTickMsg(t)
+	})
+}
+
+func nextClockTick() tea.Cmd {
+	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
+		return clockTickMsg(t)
 	})
 }
