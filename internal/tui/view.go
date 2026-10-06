@@ -48,10 +48,8 @@ func (m Model) bootView() string {
 }
 
 func (m Model) menuView() string {
-	items := []string{"about me", "projects"}
-
 	var menuRows []string
-	for index, item := range items {
+	for index, item := range menuItems {
 		if index == m.selected {
 			menuRows = append(menuRows, menuActiveStyle.Render(item))
 		} else {
@@ -64,16 +62,25 @@ func (m Model) menuView() string {
 	content := ""
 	switch m.selected {
 	case 0:
-		content = `about me
+		content = `
+		about me
 
 		Hi, my name is ismail -- i'm currently working as a swe at Relativity working on our FOIA platform but 
 		in my free time, I like to mess around with terminal tools and watch crappy movies`
 
 	case 1:
-		content = `projects
+		content = `
+		projects
 
 		SSH Portfolio
 		A terminal-based portfolio served over SSH.`
+
+	case 2:
+		content = ` insert placeholder here`
+
+	case 3:
+		content = ` insert placeholder here`
+
 	}
 
 	const (
@@ -121,7 +128,7 @@ func (m Model) menuView() string {
 		Foreground(lipgloss.Color("#5A6A73"))
 
 	left := "ismail mohammad"
-	right := m.currentTime.Local().Format("15:04:05")
+	right := m.currentTime.Local().Format("3:04:05 PM")
 
 	header := headerStyle.Render(
 		left + lipgloss.PlaceHorizontal(

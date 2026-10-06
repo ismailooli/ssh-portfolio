@@ -52,6 +52,13 @@ var bootLines = []string{
 	"[ OK ] System ready",
 }
 
+var menuItems = []string{
+	"about me",
+	"software projects",
+	"film projects",
+	"contact",
+}
+
 func New() Model {
 	return Model{currentTime: time.Now()}
 }
@@ -101,7 +108,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.screen = portfolioScreen
 			return m, nil
 		case "down", "j":
-			if m.screen == portfolioScreen && m.selected < 1 {
+			if m.screen == portfolioScreen && m.selected < len(menuItems)-1 {
 				m.selected++
 			}
 		case "up", "k":
