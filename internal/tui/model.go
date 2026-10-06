@@ -16,6 +16,7 @@ const (
 type (
 	bootTickMsg      time.Time
 	introTickMsg     time.Time
+	clockTickMsg     time.Time
 	introCompleteMsg struct{}
 )
 
@@ -28,33 +29,21 @@ const (
 )
 
 type Model struct {
-	screen  screen
-	logLine int
-	frame   int
-	width   int
-	height  int
-}
-
-var bootLines = []string{
-	"[ OK ] Establishing secure connection",
-	"[ OK ] Verifying visitor identity",
-	"[ OK ] Testing to see if anyone reading 19:15:38 ",
-	"[ OK ] Verifying LinkedIn Warrior Status",
-	"[ 404 ] Yo this guy capping on his linkedin",
-	"[ OK ] Ahh I'll let it pass this one time",
-	"[ OK ] Calculating storage needed for visit",
-	"[ OK ] Ordering takeout from the local halal burger shop",
-	"[ OK ] Picking up takeout from front door ",
-	"[ OK ] Loading portfolio data",
-	"[ OK ] System ready",
+	screen      screen
+	logLine     int
+	frame       int
+	width       int
+	height      int
+	selected    int
+	currentTime time.Time
 }
 
 func New() Model {
-	return Model{}
+	return Model{currentTime: time.Now()}
 }
 
 func (m Model) Init() tea.Cmd {
-	return nextBootLine()
+	return tea.Batch(nextBootLine(), nextClockTick())
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -82,6 +71,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return introCompleteMsg{}
 		})
 
+	case clockTickMsg:
+		m.currentTime = time.Time(msg)
+		return m, nextClockTick()
+
 	case introCompleteMsg:
 		m.screen = portfolioScreen
 		return m, nil
@@ -93,6 +86,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter", " ":
 			m.screen = portfolioScreen
 			return m, nil
+		case "down", "j":
+			if m.screen == portfolioScreen && m.selected < len(menuItems)-1 {
+				m.selected++
+			}
+		case "up", "k":
+			if m.screen == portfolioScreen && m.selected > 0 {
+				m.selected--
+			}
 		}
 	}
 
@@ -108,5 +109,11 @@ func nextIntroFrame() tea.Cmd {
 func nextBootLine() tea.Cmd {
 	return tea.Tick(bootDelay, func(t time.Time) tea.Msg {
 		return bootTickMsg(t)
+	})
+}
+
+func nextClockTick() tea.Cmd {
+	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
+		return clockTickMsg(t)
 	})
 }

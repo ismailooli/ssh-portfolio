@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-//go:embed logo.txt
+//go:embed assets/logo.txt
 var logoRaw string
 
 var logo = strings.Split(strings.TrimRight(logoRaw, "\n"), "\n")
