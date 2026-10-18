@@ -29,17 +29,22 @@ const (
 )
 
 type Model struct {
-	screen      screen
-	logLine     int
-	frame       int
-	width       int
-	height      int
-	selected    int
-	currentTime time.Time
+	screen       screen
+	logLine      int
+	frame        int
+	width        int
+	height       int
+	selected     int
+	currentTime  time.Time
+	selectedCard int
+	expandedCard int
 }
 
 func New() Model {
-	return Model{currentTime: time.Now()}
+	return Model{
+		currentTime:  time.Now(),
+		expandedCard: -1,
+	}
 }
 
 func (m Model) Init() tea.Cmd {
@@ -83,16 +88,56 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "q", "ctrl+c":
 			return m, tea.Quit
+
 		case "enter", " ":
-			m.screen = portfolioScreen
-			return m, nil
-		case "down", "j":
-			if m.screen == portfolioScreen && m.selected < len(menuItems)-1 {
-				m.selected++
+			// Enter skips the boot/logo screen.
+			if m.screen != portfolioScreen {
+				m.screen = portfolioScreen
+				return m, nil
 			}
+
+			// Enter expands the focused software or film project card.
+			projects := m.activeProjects()
+			if len(projects) > 0 && m.expandedCard == -1 {
+				m.expandedCard = m.selectedCard
+				return m, nil
+			}
+
+		case "esc":
+			// Escape only closes an expanded project.
+			if m.expandedCard != -1 {
+				m.expandedCard = -1
+				return m, nil
+			}
+
+		case "tab":
+			projects := m.activeProjects()
+			if len(projects) > 0 && m.expandedCard == -1 {
+				m.selectedCard = (m.selectedCard + 1) % len(projects)
+				return m, nil
+			}
+
+		case "shift+tab":
+			projects := m.activeProjects()
+			if len(projects) > 0 && m.expandedCard == -1 {
+				m.selectedCard = (m.selectedCard - 1 + len(projects)) % len(projects)
+				return m, nil
+			}
+
+		case "down", "j":
+			if m.screen == portfolioScreen &&
+				m.expandedCard == -1 &&
+				m.selected < len(menuItems)-1 {
+				m.selected++
+				m.selectedCard = 0
+			}
+
 		case "up", "k":
-			if m.screen == portfolioScreen && m.selected > 0 {
+			if m.screen == portfolioScreen &&
+				m.expandedCard == -1 &&
+				m.selected > 0 {
 				m.selected--
+				m.selectedCard = 0
 			}
 		}
 	}

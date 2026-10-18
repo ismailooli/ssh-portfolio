@@ -45,7 +45,10 @@ func (m Model) portfolioView() string {
 			right,
 		),
 	)
-	footer := footerStyle.Render("↑/k and ↓/j to navigate • q to quit")
+
+	footer := footerStyle.Render(
+		"↑/↓ sections • tab choose project • enter open • esc back • q quit",
+	)
 
 	return lipgloss.JoinVertical(lipgloss.Left, header, body, footer)
 }
@@ -58,15 +61,74 @@ func (m Model) portfolioContent() string {
 
 		Hi, my name is ismail -- i'm currently working as a swe at Relativity working on our FOIA platform but 
 		in my free time, I like to mess around with terminal tools and watch crappy movies`
-	case 1:
-		return `
-		projects
+	case 1, 2:
+		projects := m.activeProjects()
 
-		SSH Portfolio
-		A terminal-based portfolio served over SSH.`
-	case 2, 3:
-		return ` insert placeholder here`
+		if m.expandedCard != -1 {
+			return m.expandedProject(projects[m.expandedCard])
+		}
+
+		return m.projectCards(projects)
+
+	case 3:
+		return `contact information goes here`
 	default:
 		return ""
 	}
+}
+
+// Project Card list
+func (m Model) activeProjects() []Project {
+	switch m.selected {
+	case 1:
+		return softwareProjects
+	case 2:
+		return filmProjects
+	default:
+		return nil
+	}
+}
+
+func (m Model) expandedProject(project Project) string {
+	tags := make([]string, len(project.Tags))
+	for index, tag := range project.Tags {
+		tags[index] = tagStyle.Render(tag)
+	}
+
+	link := linkStyle.Render(project.URL)
+
+	content := projectTitleStyle.Render(project.Title) +
+		"\n\n" + project.Description +
+		"\n\n" + strings.Join(tags, " ") +
+		"\n\n" + link +
+		"\n\n" + dimStyle.Render("esc to return to all projects")
+
+	return expandedCardStyle.Render(content)
+}
+
+func (m Model) projectCards(projects []Project) string {
+	var cards []string
+
+	for index, project := range projects {
+		style := projectCardStyle
+		marker := "  "
+
+		if index == m.selectedCard {
+			style = projectCardFocusedStyle
+			marker = "▶ "
+		}
+
+		tags := make([]string, len(project.Tags))
+		for tagIndex, tag := range project.Tags {
+			tags[tagIndex] = tagStyle.Render(tag)
+		}
+
+		card := marker + projectTitleStyle.Render(project.Title) +
+			"\n\n" + dimStyle.Render(project.Description) +
+			"\n\n" + strings.Join(tags, " ")
+
+		cards = append(cards, style.Render(card))
+	}
+
+	return strings.Join(cards, "\n")
 }
